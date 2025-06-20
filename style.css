@@ -1,0 +1,70 @@
+/* Fullscreen loading screen */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  z-index: 9999;
+}
+
+/* Loading text */
+#loading-text {
+  font-size: 22px;
+  color: #ffffff;
+  margin-top: 15px;
+  font-weight: bold;
+  animation: fadeIn 1.5s infinite alternate;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top: 6px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Keyframes for animations */
+@keyframes fadeIn {
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Unity Canvas - Fixed for 1080x1920 */
+#unity-canvas {
+  width: 1920px;
+  height: 1080px;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: block;
+  background: #231F20;
+}
+
+/* Center canvas on desktop */
+#canvas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Prevent iPhone zoom on input */
+input, textarea {
+  font-size: 16px !important;
+}
