@@ -1,104 +1,181 @@
-<!DOCTYPE html>
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
 <html lang="en-us">
-  <head>
+<head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | TGBW Tiger Woods</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <link rel="manifest" href="manifest.webmanifest">
-  </head>
-  <body>
-    <div id="unity-container">
-      <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="screen-orientation" content="landscape">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Unity WebGL Game</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Force landscape orientation -->
+    <style>
+        @media screen and (orientation: portrait) {
+            #orientation-message {
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: #121212;
+                color: #ffffff;
+                font-family: Arial, sans-serif;
+                font-size: 20px;
+                text-align: center;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            }
+            #unity-container { display: none; }
+        }
+        @media screen and (orientation: landscape) {
+            #orientation-message { display: none; }
+            #unity-container { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Orientation prompt for mobile devices -->
+    <div id="orientation-message">
+        Please rotate your device to landscape mode.
     </div>
+    <!-- Unity container -->
+    <div id="unity-container">
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <div id="loading-text">Loading...</div>
+        </div>
+        <div id="canvas-container">
+            <canvas id="unity-canvas" tabindex="-1"></canvas>
+        </div>
+    </div>
+    <!-- Unity WebGL scripts with template placeholders for automatic build updates -->
     <script>
-      window.addEventListener("load", function () {
-        if ("serviceWorker" in navigator) {
-          navigator.serviceWorker.register("ServiceWorker.js");
+        // Unity WebGL configuration
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/TGBW BUILD.loader.js";
+        var config = {
+            dataUrl: buildUrl + "/TGBW BUILD.data",
+            frameworkUrl: buildUrl + "/TGBW BUILD.framework.js",
+            codeUrl: buildUrl + "/TGBW BUILD.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "Mango Mango",
+            productName: "TGBW Tiger Woods",
+            productVersion: "1.6.8",
+            devicePixelRatio: window.devicePixelRatio || 1
+        };
+
+        // Create Unity instance
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingScreen = document.querySelector("#loading-screen");
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                document.querySelector("#loading-text").textContent = `Loading... ${(progress * 100).toFixed(0)}%`;
+            }).then((unityInstance) => {
+                loadingScreen.style.display = "none";
+                // Request fullscreen on mobile devices
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    canvas.requestFullscreen = canvas.requestFullscreen || canvas.mozRequestFullScreen || canvas.msRequestFullscreen || canvas.webkitRequestFullscreen;
+                    if (canvas.requestFullscreen) {
+                        canvas.requestFullscreen().catch(err => console.log("Fullscreen request failed:", err));
+                        document.addEventListener('click', () => {
+                            if (canvas.requestFullscreen) {
+                                canvas.requestFullscreen().catch(() => {});
+                            }
+                        }, { once: true });
+                    }
+                }
+            }).catch((error) => {
+                alert("Error loading game: " + error);
+            });
+        };
+        document.body.appendChild(script);
+
+        function checkOrientation() {
+            if (window.innerHeight > window.innerWidth) {
+                document.querySelector("#orientation-message").style.display = "flex";
+                document.querySelector("#unity-container").style.display = "none";
+            } else {
+                document.querySelector("#orientation-message").style.display = "none";
+                document.querySelector("#unity-container").style.display = "block";
+            }
         }
-      });
 
-      var container = document.querySelector("#unity-container");
-      var canvas = document.querySelector("#unity-canvas");
-      var loadingBar = document.querySelector("#unity-loading-bar");
-      var progressBarFull = document.querySelector("#unity-progress-bar-full");
-      var warningBanner = document.querySelector("#unity-warning");
-
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
-      }
-
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/TGBW BUILD.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/TGBW BUILD.data",
-        frameworkUrl: buildUrl + "/TGBW BUILD.framework.js",
-        codeUrl: buildUrl + "/TGBW BUILD.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Mango Mango",
-        productName: "TGBW Tiger Woods",
-        productVersion: "1.6.8",
-        showBanner: unityShowBanner,
-      };
-
-      // By default Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-      }
-
-      loadingBar.style.display = "block";
-
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-        }).catch((message) => {
-          alert(message);
+        let orientationTimeout;
+        window.addEventListener("orientationchange", () => {
+            clearTimeout(orientationTimeout);
+            orientationTimeout = setTimeout(checkOrientation, 300);
         });
-      };
-      document.body.appendChild(script);
+        window.addEventListener("resize", () => {
+            clearTimeout(orientationTimeout);
+            orientationTimeout = setTimeout(checkOrientation, 300);
+        });
+        window.addEventListener("load", checkOrientation);
+
+
+        
+
+
+        // Handle orientation lock for iOS and Android
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+            window.addEventListener("orientationchange", () => {
+                if (window.orientation === 0 || window.orientation === 180) {
+                    document.querySelector("#orientation-message").style.display = "flex";
+                    document.querySelector("#unity-container").style.display = "none";
+                } else {
+                    document.querySelector("#orientation-message").style.display = "none";
+                    document.querySelector("#unity-container").style.display = "block";
+                }
+            });
+            // Initial orientation check
+            if (window.orientation === 0 || window.orientation === 180) {
+                document.querySelector("#orientation-message").style.display = "flex";
+                document.querySelector("#unity-container").style.display = "none";
+            }
+        }
     </script>
-  </body>
+</body>
 </html>
