@@ -1,76 +1,65 @@
 <!DOCTYPE html>
 <html lang="en-us">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="mobile-web-app-capable" content="yes">
-  <title>Unity WebGL Game</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Unity WebGL Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Unity container -->
-  <div id="unity-container">
-    <div id="loading-screen">
-      <div class="spinner"></div>
-      <div id="loading-text">Loading...</div>
+    <!-- Unity container -->
+    <div id="unity-container">
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <div id="loading-text">Loading...</div>
+        </div>
+        <div id="canvas-container">
+            <canvas id="unity-canvas" tabindex="-1"></canvas>
+        </div>
     </div>
-    <div id="canvas-container">
-      <canvas id="unity-canvas" tabindex="-1"></canvas>
-    </div>
-  </div>
+    <!-- Unity WebGL scripts with template placeholders -->
+    <script>
+        var buildUrl = "Build";
+        var loaderUrl = buildUrl + "/TGBW-Match-3-Vercel.loader.js";
+        var config = {
+            dataUrl: buildUrl + "/TGBW-Match-3-Vercel.data",
+            frameworkUrl: buildUrl + "/TGBW-Match-3-Vercel.framework.js",
+            codeUrl: buildUrl + "/TGBW-Match-3-Vercel.wasm",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "Mango Mango",
+            productName: "TGBW Tiger Woods",
+            productVersion: "1.6.8",
+            devicePixelRatio: window.devicePixelRatio || 1
+        };
 
-  <!-- Unity WebGL scripts -->
-  <script>
-    var buildUrl = "Build";
-    var loaderUrl = buildUrl + "/TGBW BUILD.loader.js";
-    var config = {
-      dataUrl: buildUrl + "/TGBW BUILD.data",
-      frameworkUrl: buildUrl + "/TGBW BUILD.framework.js",
-      codeUrl: buildUrl + "/TGBW BUILD.wasm",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "Mango Mango",
-      productName: "TGBW Tiger Woods",
-      productVersion: "1.6.8",
-      devicePixelRatio: window.devicePixelRatio || 1
-    };
-
-    var canvas = document.querySelector("#unity-canvas");
-    var loadingScreen = document.querySelector("#loading-screen");
-
-    var script = document.createElement("script");
-    script.src = loaderUrl;
-    script.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
-        document.querySelector("#loading-text").textContent = `Loading... ${(progress * 100).toFixed(0)}%`;
-      }).then((unityInstance) => {
-        loadingScreen.style.display = "none";
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          canvas.requestFullscreen = canvas.requestFullscreen || canvas.mozRequestFullScreen || canvas.msRequestFullscreen || canvas.webkitRequestFullscreen;
-          if (canvas.requestFullscreen) {
-            canvas.requestFullscreen().catch(err => console.log("Fullscreen request failed:", err));
-            document.addEventListener('click', () => {
-              if (canvas.requestFullscreen) {
-                canvas.requestFullscreen().catch(() => {});
-              }
-            }, { once: true });
-          }
-        }
-      }).catch((error) => {
-        alert("Error loading game: " + error);
-      });
-    };
-    document.body.appendChild(script);
-
-    // Optional: harmless leftover, does nothing now
-    function checkOrientation() {
-      if (window.innerHeight > window.innerWidth) {
-        // removed orientation-message references
-      } else {
-        // removed orientation-message references
-      }
-    }
-  </script>
+        var canvas = document.querySelector("#unity-canvas");
+        var loadingScreen = document.querySelector("#loading-screen");
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+            createUnityInstance(canvas, config, (progress) => {
+                document.querySelector("#loading-text").textContent = `Loading... ${(progress * 100).toFixed(0)}%`;
+            }).then((unityInstance) => {
+                loadingScreen.style.display = "none";
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    canvas.requestFullscreen = canvas.requestFullscreen || canvas.mozRequestFullScreen || canvas.msRequestFullscreen || canvas.webkitRequestFullscreen;
+                    if (canvas.requestFullscreen) {
+                        canvas.requestFullscreen().catch(err => console.log("Fullscreen request failed:", err));
+                        document.addEventListener('click', () => {
+                            if (canvas.requestFullscreen) {
+                                canvas.requestFullscreen().catch(() => {});
+                            }
+                        }, { once: true });
+                    }
+                }
+            }).catch((error) => {
+                alert("Error loading game: " + error);
+            });
+        };
+        document.body.appendChild(script);
+    </script>
 </body>
 </html>
