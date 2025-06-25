@@ -23,23 +23,23 @@
 
   <script>
     var buildUrl = "Build";
-    var loaderUrl = buildUrl + "/TGBW-Match-3-Vercel.loader.js";
+    var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
     var config = {
-      dataUrl: buildUrl + "/TGBW-Match-3-Vercel.data",
-      frameworkUrl: buildUrl + "/TGBW-Match-3-Vercel.framework.js",
-      codeUrl: buildUrl + "/TGBW-Match-3-Vercel.wasm",
+      dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
       streamingAssetsUrl: "StreamingAssets",
-      companyName: "Mango Mango",
-      productName: "TGBW Tiger Woods",
-      productVersion: "1.6.8",
+      companyName: "{{{ COMPANY_NAME }}}",
+      productName: "{{{ PRODUCT_NAME }}}",
+      productVersion: "{{{ PRODUCT_VERSION }}}",
       devicePixelRatio: window.devicePixelRatio || 1
     };
 
     var canvas = document.querySelector("#unity-canvas");
     var loadingScreen = document.querySelector("#loading-screen");
-    var unityInstance = null; //  Store global instance for orientation use
+    var unityInstance = null;
 
-    // Orientation helpers
+    //  Orientation logic
     function GetScreenOrientation() {
       return (window.innerHeight > window.innerWidth) ? "Portrait" : "Landscape";
     }
@@ -54,7 +54,7 @@
       }
     }
 
-    // Start loading Unity
+    // Load Unity
     var script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
@@ -64,9 +64,10 @@
         unityInstance = instance;
         loadingScreen.style.display = "none";
 
-        // Trigger orientation check once Unity is ready
+        // Immediately send orientation once Unity is ready
         NotifyOrientationChange();
 
+        // Optional fullscreen for mobile
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
           canvas.requestFullscreen = canvas.requestFullscreen || canvas.mozRequestFullScreen || canvas.msRequestFullscreen || canvas.webkitRequestFullscreen;
           if (canvas.requestFullscreen) {
@@ -84,7 +85,7 @@
     };
     document.body.appendChild(script);
 
-    // Register orientation listeners
+    //  Detect when user rotates or resizes screen
     window.addEventListener("resize", NotifyOrientationChange);
     window.addEventListener("orientationchange", NotifyOrientationChange);
   </script>
