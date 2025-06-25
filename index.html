@@ -23,15 +23,15 @@
 
   <script>
     var buildUrl = "Build";
-    var loaderUrl = buildUrl + "/TGBW-Match-3-Vercel.loader.js";
+    var loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
     var config = {
-      dataUrl: buildUrl + "/TGBW-Match-3-Vercel.data",
-      frameworkUrl: buildUrl + "/TGBW-Match-3-Vercel.framework.js",
-      codeUrl: buildUrl + "/TGBW-Match-3-Vercel.wasm",
+      dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
+      codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
       streamingAssetsUrl: "StreamingAssets",
-      companyName: "Mango Mango",
-      productName: "TGBW Tiger Woods",
-      productVersion: "1.6.8",
+      companyName: "{{{ COMPANY_NAME }}}",
+      productName: "{{{ PRODUCT_NAME }}}",
+      productVersion: "{{{ PRODUCT_VERSION }}}",
       devicePixelRatio: window.devicePixelRatio || 1
     };
 
@@ -39,7 +39,7 @@
     var loadingScreen = document.querySelector("#loading-screen");
     var unityInstance = null;
 
-    //  Orientation logic
+    //  Orientation detection
     function GetScreenOrientation() {
       return (window.innerHeight > window.innerWidth) ? "Portrait" : "Landscape";
     }
@@ -64,8 +64,8 @@
         unityInstance = instance;
         loadingScreen.style.display = "none";
 
-        // Immediately send orientation once Unity is ready
-        NotifyOrientationChange();
+        //  Wait a moment so Unity objects are ready before sending orientation
+        setTimeout(NotifyOrientationChange, 100);
 
         // Optional fullscreen for mobile
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
@@ -85,7 +85,7 @@
     };
     document.body.appendChild(script);
 
-    //  Detect when user rotates or resizes screen
+    //  Update orientation on rotation/resizing
     window.addEventListener("resize", NotifyOrientationChange);
     window.addEventListener("orientationchange", NotifyOrientationChange);
   </script>
