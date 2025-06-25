@@ -7,10 +7,71 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Unity WebGL Game</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!--  Embedded responsive CSS -->
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      touch-action: none;
+      background: black;
+    }
+
+    #unity-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #unity-canvas {
+      width: 100vw !important;
+      height: 100vh !important;
+      display: block;
+      background: #000;
+    }
+
+    #loading-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: black;
+      color: white;
+      z-index: 10;
+    }
+
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top: 5px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-  <!-- Unity container -->
   <div id="unity-container">
     <div id="loading-screen">
       <div class="spinner"></div>
@@ -64,7 +125,7 @@
         unityInstance = instance;
         loadingScreen.style.display = "none";
 
-        //  Wait a moment so Unity objects are ready before sending orientation
+        //  Delay call so Unity GameObjects are ready
         setTimeout(NotifyOrientationChange, 100);
 
         // Optional fullscreen for mobile
@@ -85,7 +146,7 @@
     };
     document.body.appendChild(script);
 
-    //  Update orientation on rotation/resizing
+    //  Update orientation on resize/rotate
     window.addEventListener("resize", NotifyOrientationChange);
     window.addEventListener("orientationchange", NotifyOrientationChange);
   </script>
