@@ -1,84 +1,67 @@
 /* Fullscreen loading screen */
 #loading-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #121212;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
-    font-family: Arial, sans-serif;
-    z-index: 9999;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  z-index: 9999;
 }
 
 /* Loading text */
 #loading-text {
-    font-size: 22px;
-    color: #ffffff;
-    margin-top: 15px;
-    font-weight: bold;
-    animation: fadeIn 1.5s infinite alternate;
+  font-size: 22px;
+  color: #ffffff;
+  margin-top: 15px;
+  font-weight: bold;
+  animation: fadeIn 1.5s infinite alternate;
 }
 
 /* Loading spinner */
 .spinner {
-    width: 60px;
-    height: 60px;
-    border: 6px solid rgba(255, 255, 255, 0.3);
-    border-top: 6px solid #ffffff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+  width: 60px;
+  height: 60px;
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top: 6px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 /* Keyframes for animations */
 @keyframes fadeIn {
-    0% { opacity: 0.3; }
-    100% { opacity: 1; }
+  0% { opacity: 0.3; }
+  100% { opacity: 1; }
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* Unity Canvas - Dynamic sizing */
-#unity-canvas {
-    width: 100% !important;
-    height: 100% !important;
-    display: block;
-    background: #231F20;
-}
-
-/* Ensure container fills the screen */
+/* Responsive canvas */
 #canvas-container {
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
+  width: 100vw;
+  height: calc(var(--vh, 1vh) * 100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#unity-canvas {
+  width: 100vw;
+  height: calc(var(--vh, 1vh) * 100);
+  display: block;
+  background: #231F20;
 }
 
 /* Prevent iPhone zoom on input */
 input, textarea {
-    font-size: 16px !important;
-}
-
-/* Hide URL bar on mobile browsers */
-@media screen and (max-width: 768px) {
-    body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        overflow: hidden;
-    }
-    #canvas-container {
-        height: 100vh !important;
-    }
+  font-size: 16px !important;
 }

@@ -1,37 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-us">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Match-3 Game</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Unity WebGL Game</title>
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="unity-container">
     <div id="loading-screen">
-        <div class="spinner"></div>
-        <div id="loading-text">Loading...</div>
+      <div class="spinner"></div>
+      <div id="loading-text">Loading...</div>
     </div>
     <div id="canvas-container">
-        <canvas id="unity-canvas"></canvas>
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
     </div>
-    <script src="Build/UnityLoader.js"></script>
-    <script>
-        // Unity game loading
-        var gameInstance = UnityLoader.instantiate("unity-canvas", "Build/YourGame.json");
+  </div>
 
-        // Handle resize and orientation changes
-        function resizeCanvas() {
-            const canvas = document.getElementById('unity-canvas');
-            const container = document.getElementById('canvas-container');
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            container.style.height = '100vh';
+  <script>
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/TGBW-Match-3-Vercel.loader.js";
+    var config = {
+      dataUrl: buildUrl + "/TGBW-Match-3-Vercel.data",
+      frameworkUrl: buildUrl + "/TGBW-Match-3-Vercel.framework.js",
+      codeUrl: buildUrl + "/TGBW-Match-3-Vercel.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "Mango Mango",
+      productName: "TGBW Tiger Woods",
+      productVersion: "1.6.8",
+      devicePixelRatio: window.devicePixelRatio || 1
+    };
+
+    var canvas = document.querySelector("#unity-canvas");
+    var loadingScreen = document.querySelector("#loading-screen");
+    var unityInstance = null;
+
+    function GetScreenOrientation() {
+      return (window.innerHeight > window.innerWidth) ? "Portrait" : "Landscape";
+    }
+
+    function NotifyOrientationChange() {
+      if (unityInstance && unityInstance.SendMessage) {
+        var orientation = GetScreenOrientation();
+        unityInstance.SendMessage('DeviceOrientationHandler', 'OnJSOrientationChange', orientation);
+        console.log("Orientation sent to Unity:", orientation);
+      } else {
+        console.warn("Unity not ready yet.");
+      }
+    }
+
+    // Load Unity
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        document.querySelector("#loading-text").textContent = `Loading... ${(progress * 100).toFixed(0)}%`;
+      }).then((instance) => {
+        unityInstance = instance;
+        loadingScreen.style.display = "none";
+        setTimeout(NotifyOrientationChange, 100);
+
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          canvas.requestFullscreen = canvas.requestFullscreen || canvas.mozRequestFullScreen || canvas.msRequestFullscreen || canvas.webkitRequestFullscreen;
+          document.addEventListener('click', () => {
+            if (canvas.requestFullscreen) {
+              canvas.requestFullscreen().catch(() => {});
+            }
+          }, { once: true });
         }
+      }).catch((error) => {
+        alert("Error loading game: " + error);
+      });
+    };
+    document.body.appendChild(script);
 
-        // Run on load and resize
-        window.addEventListener('load', resizeCanvas);
-        window.addEventListener('resize', resizeCanvas);
-        window.addEventListener('orientationchange', resizeCanvas);
-    </script>
+    window.addEventListener("resize", () => {
+      NotifyOrientationChange();
+      resizeCanvasToFitViewport();
+    });
+    window.addEventListener("orientationchange", () => {
+      NotifyOrientationChange();
+      resizeCanvasToFitViewport();
+    });
+    window.addEventListener("load", () => {
+      resizeCanvasToFitViewport();
+    });
+
+    function resizeCanvasToFitViewport() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+      const canvasContainer = document.getElementById('canvas-container');
+      const canvas = document.getElementById('unity-canvas');
+
+      canvasContainer.style.height = `${window.innerHeight}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+    }
+  </script>
 </body>
 </html>
