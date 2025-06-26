@@ -4,7 +4,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: calc(var(--vh, 1vh) * 100);
   background: #121212;
   display: flex;
   align-items: center;
@@ -45,15 +45,17 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive canvas */
+/* Unity canvas container */
 #canvas-container {
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
+/* Unity WebGL canvas */
 #unity-canvas {
   width: 100vw;
   height: calc(var(--vh, 1vh) * 100);
@@ -61,7 +63,7 @@
   background: #231F20;
 }
 
-/* Prevent iPhone zoom on input */
+/* Prevent iPhone zoom on inputs */
 input, textarea {
   font-size: 16px !important;
 }

@@ -9,6 +9,21 @@
   <title>Unity WebGL Game</title>
 
   <link rel="stylesheet" href="style.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+      touch-action: none;
+      background: black;
+      overscroll-behavior: none;
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <div id="unity-container">
@@ -53,7 +68,29 @@
       }
     }
 
-    // Load Unity
+    function resizeCanvasToFitViewport() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+      const canvasContainer = document.getElementById('canvas-container');
+      const canvas = document.getElementById('unity-canvas');
+
+      canvasContainer.style.height = `${window.innerHeight}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+    }
+
+    window.addEventListener("resize", () => {
+      NotifyOrientationChange();
+      resizeCanvasToFitViewport();
+    });
+    window.addEventListener("orientationchange", () => {
+      NotifyOrientationChange();
+      resizeCanvasToFitViewport();
+    });
+    window.addEventListener("load", () => {
+      resizeCanvasToFitViewport();
+    });
+
     var script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
@@ -77,29 +114,6 @@
       });
     };
     document.body.appendChild(script);
-
-    window.addEventListener("resize", () => {
-      NotifyOrientationChange();
-      resizeCanvasToFitViewport();
-    });
-    window.addEventListener("orientationchange", () => {
-      NotifyOrientationChange();
-      resizeCanvasToFitViewport();
-    });
-    window.addEventListener("load", () => {
-      resizeCanvasToFitViewport();
-    });
-
-    function resizeCanvasToFitViewport() {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-      const canvasContainer = document.getElementById('canvas-container');
-      const canvas = document.getElementById('unity-canvas');
-
-      canvasContainer.style.height = `${window.innerHeight}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-    }
   </script>
 </body>
 </html>
